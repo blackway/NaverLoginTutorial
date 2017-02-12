@@ -54,15 +54,15 @@ public class NaverLoginTutorial {
     	}
     }
 	
-    @RequestMapping("/login")
-    public ModelAndView login(HttpSession session) {
-        String naverAuthorizeUrl = naverLoginBO.getAuthorizationUrl(session);
-      
-        Map<String,Object> paramMap = new HashMap<String,Object>();
-        paramMap.put("url",naverAuthorizeUrl);
-        
-        return new ModelAndView("login", paramMap);
-    }
+//    @RequestMapping("/login")
+//    public ModelAndView login(HttpSession session) {
+//        String naverAuthorizeUrl = naverLoginBO.getAuthorizationUrl(session);
+//      
+//        Map<String,Object> paramMap = new HashMap<String,Object>();
+//        paramMap.put("url",naverAuthorizeUrl);
+//        
+//        return new ModelAndView("login", paramMap);
+//    }
     
     @RequestMapping("/join")
     public ModelAndView join(HttpSession session) {
@@ -231,5 +231,21 @@ public class NaverLoginTutorial {
     	return new ModelAndView("redirect:/main");
     }
 
+    
+    @RequestMapping("/login")
+    public ModelAndView login(HttpSession session) {
+        /* 네아로 인증 URL을 생성하기 위하여 getAuthorizationUrl을 호출 */
+        String naverAuthUrl = naverLoginBO.getAuthorizationUrl(session);
+
+        /* 생성한 인증 URL을 View로 전달 */
+        return new ModelAndView("login", "url", naverAuthUrl);
+    }
+    
+    @RequestMapping("/callback")
+    public ModelAndView callback(@RequestParam String code, @RequestParam String state, HttpSession session) throws IOException {
+        OAuth2AccessToken oauthToken = naverLoginBO.getAccessToken(session, code, state);
+        String apiResult = naverLoginBO.getUserProfile(oauthToken);
+        return new ModelAndView("callback", "result", apiResult);
+    }    
     
 }
